@@ -41,7 +41,7 @@
     <firebase-query
       id="query"
       app-name="board-lemons"
-      path="/boards/[[user.uid]]"
+      path="/boards"
       data="{{boards}}">
     </firebase-query>
     <app-indexeddb-mirror
@@ -51,14 +51,18 @@
       persisted-data="{{persistedBoards}}">
     </app-indexeddb-mirror>
     <div class="notes">
-      <template is="dom-repeat" items="[[persistedBoards]]" as="board">
+    <template is="dom-repeat" items="[[persistedBoards]]" as="userBoards">
+      <template is="dom-repeat" items="[[arrayify(userBoards)]]" as="board">
+      <template is="dom-if" if="{{notKey(board)}}">
         <na-note
-            id$="[[board.$key]]"
-            title="[[board.title]]"
-            body="[[board.body]]"
+            id$="[[board.key]]"
+            title="[[board.value.title]]"
+            body="[[board.value.body]]"
             on-tap="edit">
         </na-note>
       </template>
+      </template>
+    </template>
     </div>
   </template>
   <script>
@@ -77,6 +81,13 @@
       },
       get isEditable() {
         return this.online;
+      },
+      arrayify: function(obj) { return Object.keys(obj).map(function(k) { {
+      	if(!k.includes("$"))
+      		{return {key: k, value: obj[k]};}
+      } }) },
+      notKey: function(obj){
+      	return !obj.key.includes("$");
       }
     });
   </script>
